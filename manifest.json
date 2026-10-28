@@ -1,9 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Zuckless",
-  "version": "1.3.0",
-  "description": "Hide the Facebook feed (home opens Marketplace), Facebook, Instagram and YouTube comments, and X replies. Toggle each. zuckless.app",
-  "permissions": ["declarativeNetRequest", "storage"],
+  "name": "FB Friends & Market",
+  "version": "0.1.0",
+  "description": "Facebook, reduced to your friends and Marketplace. Fork of Zuckless (MIT).",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage"
+  ],
   "host_permissions": [
     "*://facebook.com/*",
     "*://www.facebook.com/*"
@@ -12,7 +15,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Zuckless",
+    "default_title": "FB Friends & Market",
     "default_popup": "popup.html"
   },
   "declarative_net_request": {
@@ -26,32 +29,17 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://facebook.com/*", "*://www.facebook.com/*"],
-      "css": ["facebook.css"],
-      "js": ["gate.js", "facebook.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://instagram.com/*", "*://www.instagram.com/*"],
-      "css": ["instagram.css"],
-      "js": ["gate.js", "instagram.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://www.youtube.com/*"],
-      "css": ["youtube.css"],
-      "js": ["gate.js", "youtube.js"],
-      "run_at": "document_start"
-    },
-    {
       "matches": [
-        "*://x.com/*",
-        "*://www.x.com/*",
-        "*://twitter.com/*",
-        "*://www.twitter.com/*"
+        "*://facebook.com/*",
+        "*://www.facebook.com/*"
       ],
-      "css": ["twitter.css"],
-      "js": ["gate.js", "twitter.js"],
+      "css": [
+        "facebook.css"
+      ],
+      "js": [
+        "gate.js",
+        "facebook.js"
+      ],
       "run_at": "document_start"
     }
   ],

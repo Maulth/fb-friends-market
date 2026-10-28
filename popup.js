@@ -1,9 +1,6 @@
 const DEFAULTS = {
   hideFbFeed: true,
-  hideFbComments: false,
-  hideIgComments: true,
-  hideYtComments: true,
-  hideTwReplies: true
+  hideFbComments: false
 };
 
 chrome.storage.sync.get(DEFAULTS, (settings) => {

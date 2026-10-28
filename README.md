@@ -1,132 +1,16 @@
-# Zuckless 🚫
+# FB Friends & Market
 
-**Use the internet's good parts. Skip the doomscroll.**
+Facebook, reduced to your friends and Marketplace.
 
-Zuckless is a tiny Chrome extension that removes the addictive bits of your
-favorite sites while leaving the useful bits alone. Buy that couch on
-Marketplace, message your friends, watch your videos, all without getting
-pulled into feeds, comment wars, and reply threads.
+A fork of [Zuckless](https://github.com/scottylad007/zuckless) by Scott Lombard (MIT), trimmed to Facebook only.
+The v0.1.0 fork still behaves like Zuckless on Facebook: the feed is hidden and home opens Marketplace.
+See `GAP_ANALYSIS.md` for what's missing and `GOAL.md` for the next build spec.
 
-🌐 **[zuckless.app](https://zuckless.app)**
+## Install (developer mode)
+1. Open `chrome://extensions` and turn on Developer mode.
+2. Click "Load unpacked" and pick this folder.
 
-## What it blocks
+## Upstream
+The original repo is the `upstream` remote: `git fetch upstream` to pull fixes.
 
-| Toggle | What happens |
-|---|---|
-| 🙈 **Facebook Social Feed** | The feed is gone everywhere, and facebook.com drops you straight into Marketplace instead of the doomscroll. Marketplace and Messages work exactly like normal. |
-| 💬 **Facebook Comments** | For people who keep the feed: hides comments, the comment box, and "View more comments" links on posts. **Off by default**; flip it on if you want a comment-free Facebook. |
-| 📸 **Instagram Comments** | Comment threads, "View all N comments" links, and the comment box disappear. Photos, carousels, reels, and stories stay. |
-| ▶️ **YouTube Comments** | The comment section under videos (and on Shorts) is gone. Just watch the video. |
-| 🐦 **Twitter Replies** | Open a post on X and see the post itself, with its quote tweet, photos, and video, not the reply brawl underneath it. |
-
-Every blocker has its own on/off switch in the popup (click the toolbar
-icon). Flips apply **instantly** to open tabs, no reload needed. Everything
-defaults to blocked except Facebook Comments, which is opt-in for people who
-keep the social feed around.
-
-## Install
-
-**From source (Developer mode):**
-
-1. Clone this repo:
-   ```
-   git clone https://github.com/scottylad007/zuckless.git
-   ```
-2. Open `chrome://extensions` in Chrome.
-3. Turn on **Developer mode** (top-right toggle).
-4. Click **Load unpacked** and pick the cloned folder.
-5. Pin the icon, click it, and choose your blockers.
-
-*(Chrome Web Store listing coming soon. Watch
-[zuckless.app](https://zuckless.app) for the launch.)*
-
-## Privacy
-
-Zuckless collects **nothing**. No analytics, no tracking, no network
-requests of its own, and no data ever leaves your browser. Your toggle
-settings sync through your own Chrome profile (`chrome.storage.sync`) and
-that's it. The only permissions it asks for are the ones the features
-require: `declarativeNetRequest` plus facebook.com host access (for the
-Marketplace redirect) and `storage` (for the toggles).
-
-## How it works
-
-Zuckless is deliberately gentle. It hides things with CSS instead of
-ripping pages apart, so the sites keep working exactly as designed:
-
-- **The Facebook redirect** happens at the network layer with
-  `declarativeNetRequest` static rules ([rules.json](rules.json)); the
-  browser rewrites the request before it's even sent. Facebook is a
-  single-page app, so a small script ([facebook.js](facebook.js)) also
-  watches the URL (read-only) and steers client-side navigations to
-  Marketplace.
-- **All hiding is CSS.** Rules are written as
-  `html:not([data-fbr-allow~="token"]) selector { display: none !important }`,
-  and [gate.js](gate.js) maps your toggles onto tokens in a single
-  `data-fbr-allow` attribute on `<html>`. Blocked content is hidden from the
-  first paint (no flash), and un-hiding is instant.
-- **Facebook** targets stable accessibility hooks (`role="feed"`, ARIA
-  labels). The opt-in comment blocker uses the same idea: Facebook marks
-  every comment as `role="article"` with a "Comment by ..." label, and a
-  small text scanner tags the "View more comments" links and counts that
-  carry no stable attributes. **YouTube** uses its semantic elements
-  (`ytd-comments#comments` and friends) with pure CSS, no scripting at all.
-- **Instagram** has obfuscated, ever-changing class names, so
-  [instagram.js](instagram.js) recognizes comment UI structurally: list
-  items containing a profile link plus a timestamp, which is always true
-  for comments and never for photo carousels. Matches get tagged for the
-  CSS to hide.
-- **Twitter/X** ([twitter.js](twitter.js)) finds the focal tweet on a
-  /status/ page via its self-referencing status link and hides every cell
-  below it (replies, the reply box, "Discover more") while the tweet
-  itself, its quote tweet, and the thread above it stay put.
-
-The scanners only read the page and set a `data-` attribute on matches.
-No DOM removal, no event interception, no network tampering.
-
-## Project layout
-
-| File | Purpose |
-|---|---|
-| `manifest.json` | MV3 manifest |
-| `rules.json` | Facebook → Marketplace redirect rules |
-| `background.js` | Syncs the redirect ruleset with the Facebook toggle |
-| `gate.js` | Shared toggle gate (settings → `<html data-fbr-allow>`) |
-| `facebook.css` / `facebook.js` | Feed hiding + SPA redirect |
-| `instagram.css` / `instagram.js` | Comment hiding (structural scanner) |
-| `youtube.css` / `youtube.js` | Comment hiding (pure CSS) |
-| `twitter.css` / `twitter.js` | Reply hiding on tweet pages |
-| `popup.html` / `popup.css` / `popup.js` | Settings popup |
-| `icons/` | Extension icons |
-
-## Good to know
-
-- A few cosmetic selectors match English UI strings (Facebook's "Stories" /
-  "Reels" labels, Instagram's "View all N comments"). The core blocking
-  (Facebook's `role="feed"`, Instagram's structural matching, all of
-  YouTube and Twitter) is language-independent.
-- On Instagram post pages the caption is structurally part of the comment
-  list, so it hides along with the comments there; feed captions stay.
-- Sites reshuffle their markup now and then. If something sneaks through,
-  [open an issue](../../issues) and it's usually a one-line selector fix.
-
-## Support the project
-
-Zuckless is free, open source, and collects nothing, and it'll stay that
-way. If it bought you back some hours of your life, you can
-[sponsor the project on GitHub](https://github.com/sponsors/scottylad007).
-Every bit goes toward keeping the blockers ahead of the markup reshuffles.
-
-## Contributing
-
-Issues and PRs welcome. Keep the philosophy: hide, don't break; read, don't
-mutate; and every new blocker gets a toggle.
-
-## License
-
-[MIT](LICENSE)
-
----
-
-Made with ❤️ and a healthy distaste for provocative algorithms.
-[zuckless.app](https://zuckless.app)
+License: MIT (see LICENSE; original copyright retained).

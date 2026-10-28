@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "FB Friends & Market",
-  "version": "0.1.0",
-  "description": "Facebook, reduced to your friends and Marketplace. Fork of Zuckless (MIT).",
+  "version": "0.2.0",
+  "description": "Facebook, reduced to your friends' posts and Marketplace. No ranked feed, Reels, or suggested posts. Fork of Zuckless (MIT).",
+  "homepage_url": "https://github.com/Maulth/fb-friends-market",
   "permissions": [
     "declarativeNetRequest",
     "storage"
@@ -21,9 +22,14 @@
   "declarative_net_request": {
     "rule_resources": [
       {
-        "id": "redirect_rules",
+        "id": "rules_friends",
         "enabled": true,
-        "path": "rules.json"
+        "path": "rules_friends.json"
+      },
+      {
+        "id": "rules_marketplace",
+        "enabled": false,
+        "path": "rules_marketplace.json"
       }
     ]
   },
@@ -38,6 +44,7 @@
       ],
       "js": [
         "gate.js",
+        "scan.js",
         "facebook.js"
       ],
       "run_at": "document_start"

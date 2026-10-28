@@ -1,0 +1,19 @@
+{
+  "name": "fb-friends-market",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Facebook, reduced to your friends' posts and Marketplace.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:browser": "node test/browser/smoke.js",
+    "package": "node scripts/package.js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3",
+    "playwright-core": "^1.64.1"
+  },
+  "engines": {
+    "node": ">=22.2"
+  }
+}

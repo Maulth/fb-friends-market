@@ -4,6 +4,22 @@
 
 **Base:** [Zuckless](https://github.com/scottylad007/zuckless) v1.3.0 (MIT, Manifest V3, last commit 2026-07-23). The upstream is kept as the `upstream` remote.
 
+## Status at v0.2.0
+
+| Gap | Status | Notes |
+|---|---|---|
+| G1 Friends feed carved out | Done | Friends is the default home. An `allow` rule at priority 2 exempts `filter=friends`. `data-fbm-page` scopes the feed hide to ranked feeds, and the feed is also hidden before classification, so nothing flashes. |
+| G2 Filtering inside the Friends feed | Done (English) | Covers sponsored, suggested, Follow/Join, Reels shelves, and PYMK. Strict mode adds reshares and link posts. |
+| G3 Friends / Marketplace nav | Done, placed differently | Placed **bottom-left**, not at the top. A top bar would collide with Facebook's own banner and center tabs, and the bottom center collides with the Messenger composer. |
+| G4 Rails and nav clutter | Done | Nav links are matched by URL. The right rail's Sponsored section is found by its heading. |
+| G5 Marketplace cleanup | Not started | |
+| G6 Notifications | Not started | |
+| G7 Settings | Done | The popup has the main switch, Home page (Friends/Market), Strict friends, Hide comments, and Debug outlines. |
+| G8 Language | Documented | Every phrase lives in `PHRASES` / `RESHARE_RE` in `scan.js`. |
+| G9 Tests and debug | Done | `npm test` runs jsdom against the fixtures and checks the DNR rules against the in-page redirect. `npm run test:browser` loads the extension in Chromium against the fixtures. The fixtures are synthetic, so swap in real captures (`fixtures/README.md`). |
+
+**Still unverified against live Facebook:** the Friends feed URL, and every `aria-label` and text phrase. The checks to run are in the README.
+
 ## Why Zuckless
 
 | Candidate | License | Last update | Verdict |

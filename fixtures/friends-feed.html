@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+  Synthetic Friends feed, modeled on Facebook's ARIA structure (role="feed"
+  with one direct child per unit, role="article" comments, aria-labelledby
+  ad labels). All names are made up. Class names are omitted on purpose:
+  nothing in the extension reads them.
+
+  data-expect on each feed unit is the test oracle:
+    keep                 a friend's post; must not be tagged
+    <reason>             must get data-fbm-hide="<reason>"
+    reshare              must get data-fbm-reshare and no data-fbm-hide
+  data-expect="fbc" marks comment links the comment scanner must tag.
+-->
+<html lang="en">
+<head><meta charset="utf-8"><title>Facebook</title></head>
+<body>
+<div id="mount_0_0_Xy">
+
+  <div role="banner">
+    <a aria-label="Facebook" href="/">facebook</a>
+    <ul>
+      <li><a aria-label="Home" href="/">Home</a></li>
+      <li><a aria-label="Video" href="https://www.facebook.com/watch/?ref=tab" data-expect-css="hidden">Video</a></li>
+      <li><a aria-label="Marketplace" href="https://www.facebook.com/marketplace/?ref=app_tab">Marketplace</a></li>
+      <li><a aria-label="Groups" href="https://www.facebook.com/groups/feed/">Groups</a></li>
+      <li><a aria-label="Gaming" href="https://www.facebook.com/gaming/?ref=games_tab" data-expect-css="hidden">Gaming</a></li>
+    </ul>
+    <div aria-label="Messenger" role="button">M</div>
+    <div aria-label="Notifications" role="button">N</div>
+  </div>
+
+  <div role="navigation" aria-label="Shortcuts">
+    <ul>
+      <li><a href="https://www.facebook.com/friends/">Friends</a></li>
+      <li><a href="https://www.facebook.com/memories/?source=bookmark" data-expect-css="hidden">Memories</a></li>
+      <li><a href="https://www.facebook.com/saved/">Saved</a></li>
+      <li><a href="https://www.facebook.com/groups/watchmakersclub/">Watchmakers Club</a></li>
+      <li><a href="https://www.facebook.com/watch/?ref=bookmarks" data-expect-css="hidden">Video</a></li>
+      <li><a href="https://www.facebook.com/marketplace/?ref=bookmark">Marketplace</a></li>
+      <li><a href="https://www.facebook.com/?filter=all&amp;sk=h_chr" data-expect-css="hidden">Feeds</a></li>
+      <li><a href="https://www.facebook.com/?filter=friends&amp;sk=h_chr">Friends feed</a></li>
+      <li><a href="https://www.facebook.com/gaming/play/" data-expect-css="hidden">Play games</a></li>
+      <li><a href="https://www.facebook.com/adsmanager/?nav_source=flyout_menu" data-expect-css="hidden">Ads Manager</a></li>
+    </ul>
+  </div>
+
+  <div role="main">
+    <div aria-label="Stories" data-expect-css="hidden"><span>Create story</span></div>
+    <div aria-label="Create a post"><span>What's on your mind, Pat?</span></div>
+
+    <div role="feed">
+      <h3 dir="auto">News Feed posts</h3>
+
+      <!-- A plain friend post. Its comments contain every trigger word, which
+           must be ignored because they are inside comment articles. -->
+      <div data-expect="keep">
+        <div aria-posinset="1" aria-describedby=":r1:" aria-labelledby=":r2:">
+          <div>
+            <h4 id=":r2:"><span><a href="https://www.facebook.com/maya.chen.7">Maya Chen</a></span></h4>
+            <span><a href="https://www.facebook.com/maya.chen.7/posts/1001" aria-label="2h">2h</a></span>
+          </div>
+          <div id=":r1:" data-ad-preview="message"><div dir="auto">Finally finished the garden fence. Three weekends, two blisters, one very confused dog.</div></div>
+          <div>
+            <div aria-label="Like" role="button">Like</div>
+            <div aria-label="Leave a comment" role="button">Comment</div>
+            <div aria-label="Send this to friends or post it on your profile." role="button">Share</div>
+          </div>
+          <div>
+            <div role="article" aria-label="Comment by Leo Park 1 hour ago">
+              <span dir="auto">Sponsored</span>
+            </div>
+            <div role="article" aria-label="Comment by Ines Ortiz 40 minutes ago">
+              <span dir="auto">Follow</span>
+              <a href="https://l.facebook.com/l.php?u=https%3A%2F%2Fexample.com%2Ffences">example.com/fences</a>
+            </div>
+            <div role="article" aria-label="Reply by Maya Chen 30 minutes ago">
+              <h4>Ines Ortiz shared a link.</h4>
+            </div>
+            <div role="button" data-expect="fbc">View more comments</div>
+            <span dir="auto" data-expect="fbc">14 comments</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ad label rendered elsewhere and referenced with aria-labelledby -->
+      <div data-expect="sponsored">
+        <div aria-posinset="2">
+          <h4><span><a href="https://www.facebook.com/brightsmilesdental">Bright Smiles Dental</a></span></h4>
+          <span><a href="#" aria-labelledby=":r9:"><span>S</span><span>p</span><span>o</span><span>n</span><span>s</span></a></span>
+          <div dir="auto">Your best smile is one click away.</div>
+        </div>
+      </div>
+
+      <!-- Ad label as an SVG <use> reference -->
+      <div data-expect="sponsored">
+        <div aria-posinset="3">
+          <h4><span><a href="https://www.facebook.com/summitgear">Summit Gear Co.</a></span></h4>
+          <span><svg viewBox="0 0 40 12"><use href="#SvgT7"></use></svg></span>
+          <div dir="auto">Built for the trail.</div>
+        </div>
+      </div>
+
+      <!-- Only signal: the "Why am I seeing this ad?" link -->
+      <div data-expect="sponsored">
+        <div aria-posinset="4">
+          <h4><span><a href="https://www.facebook.com/northwindinsurance">Northwind Insurance</a></span></h4>
+          <a href="/ads/about/?entry_product=ad_preferences" aria-label="About this ad">i</a>
+          <div dir="auto">Bundle and save.</div>
+        </div>
+      </div>
+
+      <!-- Only signal: an ad call-to-action button -->
+      <div data-expect="sponsored">
+        <div aria-posinset="5">
+          <h4><span><a href="https://www.facebook.com/fernandoak">Fern &amp; Oak Candles</a></span></h4>
+          <div dir="auto">Autumn collection is here.</div>
+          <div role="button"><span>Shop now</span></div>
+        </div>
+      </div>
+
+      <!-- Plain-text ad label in the header -->
+      <div data-expect="sponsored">
+        <div aria-posinset="6">
+          <h4><span><a href="https://www.facebook.com/quickloans">QuickLoans</a></span></h4>
+          <span><span>Sponsored</span></span>
+          <div dir="auto">Cash today.</div>
+        </div>
+      </div>
+
+      <!-- Suggested post from a page the user doesn't follow -->
+      <div data-expect="suggested">
+        <div aria-posinset="7">
+          <div><span dir="auto">Suggested for you</span></div>
+          <h4><span><a href="https://www.facebook.com/outragedaily">Outrage Daily</a></span></h4>
+          <div dir="auto">You won't BELIEVE what they said about your town.</div>
+        </div>
+      </div>
+
+      <!-- Page post with a Follow button and no other label -->
+      <div data-expect="follow">
+        <div aria-posinset="8">
+          <h4><span><a href="https://www.facebook.com/viralclipz">Viral Clipz</a></span> · <div role="button"><span>Follow</span></div></h4>
+          <div dir="auto">Wait for the end.</div>
+        </div>
+      </div>
+
+      <!-- Group post with a Join button -->
+      <div data-expect="follow">
+        <div aria-posinset="9">
+          <h4><span><a href="https://www.facebook.com/groups/hotdebates">Hot Debates</a></span></h4>
+          <div aria-label="Join group" role="button"><span>Join</span></div>
+          <div dir="auto">Unpopular opinion thread.</div>
+        </div>
+      </div>
+
+      <!-- Reels shelf -->
+      <div data-expect="reels">
+        <div>
+          <h3><span>Reels and short videos</span></h3>
+          <a href="https://www.facebook.com/reel/555"><span>12K views</span></a>
+          <a href="https://www.facebook.com/reel/556"><span>98K views</span></a>
+        </div>
+      </div>
+
+      <!-- People you may know carousel -->
+      <div data-expect="pymk">
+        <div>
+          <span dir="auto">People you may know</span>
+          <a href="https://www.facebook.com/profile.php?id=777">Taylor Quinn</a>
+          <div aria-label="Add friend" role="button"><span>Add friend</span></div>
+        </div>
+      </div>
+
+      <!-- A friend resharing a page's post -->
+      <div data-expect="reshare">
+        <div aria-posinset="12">
+          <h4><span><a href="https://www.facebook.com/alex.rivera">Alex Rivera</a> shared <a href="https://www.facebook.com/outragedaily">Outrage Daily</a>'s post.</span></h4>
+          <div dir="auto">This is insane!!</div>
+          <div>
+            <h4><span><a href="https://www.facebook.com/outragedaily">Outrage Daily</a></span></h4>
+            <div dir="auto">They don't want you to see this.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A friend posting a news link (outbound links go through l.facebook.com) -->
+      <div data-expect="reshare">
+        <div aria-posinset="13">
+          <h4><span><a href="https://www.facebook.com/sam.okafor">Sam Okafor</a></span></h4>
+          <div dir="auto">Can you believe this?</div>
+          <a href="https://l.facebook.com/l.php?u=https%3A%2F%2Fnews.example.com%2Fstory&amp;h=AT0">
+            <span>NEWS.EXAMPLE.COM</span><span>Officials stunned by shocking new report</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- A friend sharing their own memory is friend content -->
+      <div data-expect="keep">
+        <div aria-posinset="14">
+          <h4><span><a href="https://www.facebook.com/jordan.lee.22">Jordan Lee</a> shared a memory.</span></h4>
+          <div dir="auto">Five years ago today. Still the best road trip.</div>
+        </div>
+      </div>
+
+      <!-- Trigger phrases inside a friend's own words are not labels -->
+      <div data-expect="keep">
+        <div aria-posinset="15">
+          <h4><span><a href="https://www.facebook.com/priya.nair">Priya Nair</a></span></h4>
+          <div dir="auto"><span>Suggested for you all: the tacos at the new place on 5th. Not sponsored, I just love them.</span></div>
+          <div aria-label="Like" role="button">Like</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div role="complementary">
+    <div>
+      <div data-expect="sponsored">
+        <div><h3><span>Sponsored</span></h3></div>
+        <div>
+          <a href="https://l.facebook.com/l.php?u=https%3A%2F%2Fshop.example.com" target="_blank"><span>Shop Example</span><span>shop.example.com</span></a>
+          <a href="https://l.facebook.com/l.php?u=https%3A%2F%2Fapp.example.com" target="_blank"><span>Example App</span><span>app.example.com</span></a>
+        </div>
+      </div>
+      <div data-expect="keep">
+        <div><h3><span>Birthdays</span></h3></div>
+        <div><span>Sam Okafor's birthday is today.</span></div>
+      </div>
+      <div data-expect="keep">
+        <div><h3><span>Contacts</span></h3></div>
+        <ul>
+          <li><a href="https://www.facebook.com/maya.chen.7">Maya Chen</a></li>
+          <li><a href="https://www.facebook.com/alex.rivera">Alex Rivera</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Ad labels Facebook renders out of line and points at -->
+<div hidden>
+  <span id=":r9:">Sponsored</span>
+  <svg><text id="SvgT7">Sponsored</text></svg>
+</div>
+</body>
+</html>

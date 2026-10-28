@@ -1,43 +1,91 @@
 /*
- * Facebook feed removal. Pure CSS, no DOM mutation.
- * Facebook's markup uses obfuscated class names, but ARIA roles and labels
- * are stable accessibility hooks, so we target those.
+ * Facebook, reduced to friends and Marketplace. Pure CSS, no DOM mutation.
+ * Facebook's markup uses obfuscated class names, but ARIA roles, labels, and
+ * URLs are stable hooks, so we target those.
  *
- * Marketplace and Messages do not use role="feed", so they are unaffected.
- *
- * Every rule is gated on the "Facebook Social Feed" toggle: when the blocker
- * is switched off, gate.js adds the "fb" token to <html data-fbr-allow> and
- * these rules stop applying.
+ * State lives in data attributes on <html>:
+ *   data-fbr-allow~="fb"      main toggle is OFF (gate.js); nothing is hidden
+ *   data-fbr-deny~="strict"   strict mode: also hide reshares and link posts
+ *   data-fbr-deny~="fbc"      hide comments (independent of the main toggle)
+ *   data-fbr-deny~="debug"    outline what would be hidden, don't hide it
+ *   data-fbm-page             friends | feed | marketplace | other
+ *                             (facebook.js; "feed" = a ranked feed)
+ * and on elements, tagged by scan.js:
+ *   data-fbm-hide="<reason>"  not a friend post; always hidden
+ *   data-fbm-reshare          a friend's reshare or link post
  */
 
-/* News feed, group feeds, page feeds, profile timelines */
-html:not([data-fbr-allow~="fb"]) div[role="feed"],
-/* Stories tray at the top of the home page */
-html:not([data-fbr-allow~="fb"]) div[aria-label="Stories"],
-html:not([data-fbr-allow~="fb"]) div[aria-label="Stories tray"],
-/* Reels shelf */
-html:not([data-fbr-allow~="fb"]) div[aria-label="Reels"],
-/* "Create a post" composer shown above the feed */
-html:not([data-fbr-allow~="fb"]) div[aria-label="Create a post"] {
-  display: none !important;
+:is(
+  /* The ranked feed (home, groups feed, gaming). Also hidden until
+     facebook.js has classified the page, so nothing flashes on first paint.
+     The Friends feed, profiles, and individual groups are left alone. */
+  html:not([data-fbr-allow~="fb"]):not([data-fbm-page]) div[role="feed"],
+  html:not([data-fbr-allow~="fb"])[data-fbm-page="feed"] div[role="feed"],
+  /* "Create a post" composer above a ranked feed */
+  html:not([data-fbr-allow~="fb"])[data-fbm-page="feed"] div[aria-label="Create a post"],
+  /* Stories tray and Reels shelf, everywhere */
+  html:not([data-fbr-allow~="fb"]) div[aria-label="Stories"],
+  html:not([data-fbr-allow~="fb"]) div[aria-label="Stories tray"],
+  html:not([data-fbr-allow~="fb"]) div[aria-label="Reels"],
+  /* Sponsored, suggested, Reels, and "People you may know" units, plus the
+     right rail's Sponsored section */
+  html:not([data-fbr-allow~="fb"]) [data-fbm-hide],
+  /* Strict mode: friends' reshares and link posts */
+  html:not([data-fbr-allow~="fb"])[data-fbr-deny~="strict"] [data-fbm-reshare],
+  /* Top bar and left rail links to Video, Reels, Gaming, Memories, Feeds,
+     fundraisers, and ads. Messenger, notifications, Marketplace, Groups,
+     and Friends stay. */
+  html:not([data-fbr-allow~="fb"]) :is([role="banner"], [role="navigation"]) a:is(
+    [href*="/watch/"], [href$="/watch"],
+    [href*="/reel/"], [href*="/reels/"],
+    [href*="/gaming/"], [href$="/gaming"],
+    [href*="/memories/"], [href*="/onthisday"],
+    [href*="filter=all"],
+    [href*="/fundraisers/"],
+    [href*="/ads/"], [href*="/adsmanager"]
+  ),
+
+  /*
+   * Facebook Comments (separate opt-in toggle, OFF by default, and not tied
+   * to the main toggle). Comment sections are where most rage bait lives.
+   * Facebook marks each comment thread item as role="article" with a
+   * descriptive aria-label, which is the most stable hook it exposes.
+   */
+  /* Individual comments and replies under posts */
+  html[data-fbr-deny~="fbc"] div[role="article"][aria-label^="Comment by"],
+  html[data-fbr-deny~="fbc"] div[role="article"][aria-label^="Reply by"],
+  /* The "Write a comment..." composer */
+  html[data-fbr-deny~="fbc"] div[aria-label^="Write a comment"],
+  html[data-fbr-deny~="fbc"] form[aria-label^="Write a comment"],
+  /* The Comment button in the post action bar */
+  html[data-fbr-deny~="fbc"] div[aria-label="Leave a comment"],
+  /* Text-matched bits tagged by scan.js ("View more comments", counts) */
+  html[data-fbr-deny~="fbc"] [data-fbr-fbc]
+) {
+  :root:not([data-fbr-deny~="debug"]) & {
+    display: none !important;
+  }
+  :root[data-fbr-deny~="debug"] & {
+    outline: 2px dashed #e41e3f !important;
+    outline-offset: -2px !important;
+  }
 }
 
-/*
- * Facebook Comments (separate opt-in toggle, OFF by default).
- * For people who keep the social feed but want it comment-free. Facebook
- * marks each comment thread item as role="article" with a descriptive
- * aria-label, which is the most stable hook it exposes.
- */
+/* Debug mode: name the reason on everything scan.js tagged. */
+:root[data-fbr-deny~="debug"]:not([data-fbr-allow~="fb"]) [data-fbm-hide]::before,
+:root[data-fbr-deny~="debug"][data-fbr-deny~="strict"]:not([data-fbr-allow~="fb"]) [data-fbm-reshare]::before {
+  content: "FBM hidden: " attr(data-fbm-hide);
+  display: block;
+  padding: 2px 8px;
+  background: #e41e3f;
+  color: #fff;
+  font: 600 11px/1.6 ui-monospace, Consolas, monospace;
+}
+:root[data-fbr-deny~="debug"][data-fbr-deny~="strict"]:not([data-fbr-allow~="fb"]) [data-fbm-reshare]:not([data-fbm-hide])::before {
+  content: "FBM hidden: reshare (strict)";
+}
 
-/* Individual comments and replies under posts */
-html[data-fbr-deny~="fbc"] div[role="article"][aria-label^="Comment by"],
-html[data-fbr-deny~="fbc"] div[role="article"][aria-label^="Reply by"],
-/* The "Write a comment..." composer */
-html[data-fbr-deny~="fbc"] div[aria-label^="Write a comment"],
-html[data-fbr-deny~="fbc"] form[aria-label^="Write a comment"],
-/* The Comment button in the post action bar */
-html[data-fbr-deny~="fbc"] div[aria-label="Leave a comment"],
-/* Text-matched bits tagged by facebook.js ("View more comments", counts) */
-html[data-fbr-deny~="fbc"] [data-fbr-fbc] {
+/* The Friends | Marketplace switcher (facebook.js) goes with the main toggle. */
+html[data-fbr-allow~="fb"] [data-fbm-switcher] {
   display: none !important;
 }

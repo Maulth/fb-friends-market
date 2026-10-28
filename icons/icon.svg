@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Source for icon16/48/128.png. Two friends; Chrome and Edge need PNGs. -->
+  <rect width="128" height="128" rx="28" fill="#0f766e"/>
+  <circle cx="84" cy="42" r="16" fill="#99f6e4"/>
+  <path d="M54 100c0-18 13-31 30-31s30 13 30 31z" fill="#99f6e4"/>
+  <circle cx="48" cy="50" r="19" fill="#fff"/>
+  <path d="M12 112c0-21 16-37 36-37s36 16 36 37z" fill="#fff"/>
+</svg>

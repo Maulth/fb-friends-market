@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+  Synthetic friend profile timeline. The page header has Follow/Message
+  buttons outside the feed, which must not affect the posts. Every unit in
+  the timeline is the friend's own and must be kept. Same data-expect
+  convention as friends-feed.html.
+-->
+<html lang="en">
+<head><meta charset="utf-8"><title>Maya Chen | Facebook</title></head>
+<body>
+<div id="mount_0_0_Pq">
+  <div role="banner">
+    <a aria-label="Facebook" href="/">facebook</a>
+  </div>
+
+  <div role="main">
+    <div>
+      <h1><span>Maya Chen</span></h1>
+      <span>412 friends</span>
+      <div aria-label="Message" role="button"><span>Message</span></div>
+      <div aria-label="Follow" role="button"><span>Follow</span></div>
+    </div>
+
+    <div role="tablist">
+      <a role="tab" href="https://www.facebook.com/maya.chen.7">Posts</a>
+      <a role="tab" href="https://www.facebook.com/maya.chen.7/about">About</a>
+      <a role="tab" href="https://www.facebook.com/maya.chen.7/photos">Photos</a>
+    </div>
+
+    <div role="feed">
+      <div data-expect="keep">
+        <div aria-posinset="1">
+          <h4><span><a href="https://www.facebook.com/maya.chen.7">Maya Chen</a></span></h4>
+          <div dir="auto">Finally finished the garden fence.</div>
+          <div aria-label="Like" role="button">Like</div>
+        </div>
+      </div>
+      <div data-expect="keep">
+        <div aria-posinset="2">
+          <h4><span><a href="https://www.facebook.com/maya.chen.7">Maya Chen</a> updated her profile picture.</span></h4>
+          <div dir="auto">New year, new haircut.</div>
+        </div>
+      </div>
+      <div data-expect="keep">
+        <div aria-posinset="3">
+          <h4><span><a href="https://www.facebook.com/maya.chen.7">Maya Chen</a> is with <a href="https://www.facebook.com/leo.park">Leo Park</a>.</span></h4>
+          <div dir="auto">Trivia night champions (again).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FB Friends & Market",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Facebook, reduced to your friends' posts and Marketplace. No ranked feed, Reels, or suggested posts. Fork of Zuckless (MIT).",
   "homepage_url": "https://github.com/Maulth/fb-friends-market",
   "permissions": [
@@ -30,6 +30,11 @@
         "id": "rules_marketplace",
         "enabled": false,
         "path": "rules_marketplace.json"
+      },
+      {
+        "id": "rules_reels",
+        "enabled": false,
+        "path": "rules_reels.json"
       }
     ]
   },

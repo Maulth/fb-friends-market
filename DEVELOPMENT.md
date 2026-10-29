@@ -16,9 +16,10 @@ Everything follows upstream Zuckless's rules: hiding is CSS-only from first pain
 | File | Role |
 |---|---|
 | `rules_friends.json`, `rules_marketplace.json` | Network redirects. Both let the Friends feed URL through. `background.js` enables the one that matches the Home page setting, or neither when the extension is off. |
-| `gate.js` | Upstream's toggle system. Settings become tokens on `<html data-fbr-allow / data-fbr-deny>`. |
+| `rules_reels.json` | A single higher-priority allow rule for `/reel` and `/reels`. `background.js` adds it on top of the home ruleset when Allow Reels is on. |
+| `gate.js` | Upstream's toggle system. Settings become tokens on `<html data-fbr-allow / data-fbr-deny>`. Allow Reels is an "allowance": opt-in, but its token goes in `data-fbr-allow`. |
 | `scan.js` | Page classification, plus the scanners that tag feed units (`data-fbm-hide="<reason>"`, `data-fbm-reshare`), the right rail, and comment links. It holds the English phrase table. |
-| `facebook.js` | Sets `<html data-fbm-page="friends|feed|marketplace|other">`, redirects SPA navigations, runs the scanners on DOM changes, and mounts the Friends/Marketplace switcher in a closed shadow root. |
+| `facebook.js` | Sets `<html data-fbm-page="friends|feed|marketplace|reel|other">`, redirects SPA navigations, runs the scanners on DOM changes, and mounts the Friends/Marketplace switcher in a closed shadow root. |
 | `facebook.css` | Hides by role, label, URL, and tag, gated on those attributes. Each hide rule is written once, and a nested block turns it into an outline in debug mode. |
 | `popup.*` | The settings popup. Keys and defaults are in `popup.js`. |
 | `icons/icon.svg` | Source for the PNG icons. |

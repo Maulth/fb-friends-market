@@ -8,9 +8,12 @@ const manifest = readJson("manifest.json");
 const rulesets = Object.fromEntries(
   manifest.declarative_net_request.rule_resources.map((r) => [r.id, readJson(r.path)])
 );
+// One home ruleset is live at a time; rules_reels goes on top of it.
+const { rules_reels: reels, ...homes } = rulesets;
 
 // Just enough of declarativeNetRequest's matching for main_frame requests:
 // the highest priority wins, and at equal priority "allow" beats "redirect".
+// Live rulesets are matched as one list, as Chrome does within an extension.
 function dnr(rules, url) {
   const hits = rules
     .filter((r) => r.condition.resourceTypes.includes("main_frame"))
@@ -35,7 +38,10 @@ const URLS = [
   "https://www.facebook.com/watch",
   "https://www.facebook.com/watch/?v=123",
   "https://www.facebook.com/reel/456",
+  "https://www.facebook.com/reel/456/?s=fb_shorts&mibextid=abc",
+  "https://www.facebook.com/reel",
   "https://www.facebook.com/reels/",
+  "https://www.facebook.com/reelestate",
   "https://www.facebook.com/stories/789/",
   "https://www.facebook.com/marketplace/",
   "https://www.facebook.com/marketplace/item/1/",
@@ -45,22 +51,24 @@ const URLS = [
   "https://www.facebook.com/messages/t/1"
 ];
 
-test("manifest lists both rulesets, Friends live by default", () => {
+test("manifest lists the rulesets, only Friends live by default", () => {
   assert.deepEqual(
     manifest.declarative_net_request.rule_resources.map((r) => [r.id, r.enabled]),
-    [["rules_friends", true], ["rules_marketplace", false]]
+    [["rules_friends", true], ["rules_marketplace", false], ["rules_reels", false]]
   );
   // background.js must know the same ids.
   const bg = fs.readFileSync(path.join(ROOT, "background.js"), "utf8");
   for (const id of Object.keys(rulesets)) assert.ok(bg.includes(`"${id}"`), id);
 });
 
-test("each ruleset sends home to its target and lets the Friends feed through", () => {
+test("each home ruleset sends home to its target and lets the Friends feed through", () => {
   const targets = { rules_friends: scan.FRIENDS_URL, rules_marketplace: scan.MARKETPLACE_URL };
-  for (const [id, rules] of Object.entries(rulesets)) {
+  assert.deepEqual(Object.keys(homes), Object.keys(targets));
+  for (const [id, rules] of Object.entries(homes)) {
     const home = targets[id];
     assert.equal(dnr(rules, "https://www.facebook.com/"), home, id);
     assert.equal(dnr(rules, "https://www.facebook.com/watch/?v=1"), home, id);
+    assert.equal(dnr(rules, "https://www.facebook.com/reel/1"), home, id);
     assert.equal(dnr(rules, scan.FRIENDS_URL), "allow", id);
     // No redirect lands somewhere that redirects again.
     for (const rule of rules.filter((r) => r.action.type === "redirect")) {
@@ -70,12 +78,26 @@ test("each ruleset sends home to its target and lets the Friends feed through", 
   }
 });
 
+test("rules_reels lets reels through and nothing else", () => {
+  assert.ok(reels.every((r) => r.action.type === "allow"));
+  for (const [id, rules] of Object.entries(homes)) {
+    const live = [...rules, ...reels];
+    assert.equal(dnr(live, "https://www.facebook.com/reel/1"), "allow", id);
+    assert.equal(dnr(live, "https://www.facebook.com/reels/"), "allow", id);
+    assert.notEqual(dnr(live, "https://www.facebook.com/watch/?v=1"), "allow", id);
+    assert.notEqual(dnr(live, "https://www.facebook.com/stories/1/"), "allow", id);
+  }
+});
+
 test("network rules and the in-page watcher agree on every URL", () => {
-  for (const rules of Object.values(rulesets)) {
-    for (const url of URLS) {
-      const result = dnr(rules, url);
-      const networkRedirects = result !== null && result !== "allow";
-      assert.equal(networkRedirects, scan.isRedirected(url), url);
+  for (const [id, rules] of Object.entries(homes)) {
+    for (const allowReels of [false, true]) {
+      const live = allowReels ? [...rules, ...reels] : rules;
+      for (const url of URLS) {
+        const result = dnr(live, url);
+        const networkRedirects = result !== null && result !== "allow";
+        assert.equal(networkRedirects, scan.isRedirected(url, { allowReels }), `${id} reels=${allowReels} ${url}`);
+      }
     }
   }
 });

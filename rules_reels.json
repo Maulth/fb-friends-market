@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "priority": 2,
+    "action": { "type": "allow" },
+    "condition": {
+      "regexFilter": "^https?://(www\\.)?facebook\\.com/(reel|reels)([/?].*)?$",
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]

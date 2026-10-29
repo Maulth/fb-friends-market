@@ -5,10 +5,11 @@
  *
  * State lives in data attributes on <html>:
  *   data-fbr-allow~="fb"      main toggle is OFF (gate.js); nothing is hidden
+ *   data-fbr-allow~="reels"   Allow Reels is ON: reel pages render
  *   data-fbr-deny~="strict"   strict mode: also hide reshares and link posts
  *   data-fbr-deny~="fbc"      hide comments (independent of the main toggle)
  *   data-fbr-deny~="debug"    outline what would be hidden, don't hide it
- *   data-fbm-page             friends | feed | marketplace | other
+ *   data-fbm-page             friends | feed | marketplace | reel | other
  *                             (facebook.js; "feed" = a ranked feed)
  * and on elements, tagged by scan.js:
  *   data-fbm-hide="<reason>"  not a friend post; always hidden
@@ -21,12 +22,15 @@
      The Friends feed, profiles, and individual groups are left alone. */
   html:not([data-fbr-allow~="fb"]):not([data-fbm-page]) div[role="feed"],
   html:not([data-fbr-allow~="fb"])[data-fbm-page="feed"] div[role="feed"],
+  /* A reel page that's about to redirect home, unless Reels are allowed */
+  html:not([data-fbr-allow~="fb"]):not([data-fbr-allow~="reels"])[data-fbm-page="reel"] div[role="feed"],
   /* "Create a post" composer above a ranked feed */
   html:not([data-fbr-allow~="fb"])[data-fbm-page="feed"] div[aria-label="Create a post"],
-  /* Stories tray and Reels shelf, everywhere */
+  /* Stories tray and Reels shelf, everywhere. The shelf is left alone on a
+     reel page the user allowed, in case the player itself carries the label. */
   html:not([data-fbr-allow~="fb"]) div[aria-label="Stories"],
   html:not([data-fbr-allow~="fb"]) div[aria-label="Stories tray"],
-  html:not([data-fbr-allow~="fb"]) div[aria-label="Reels"],
+  html:not([data-fbr-allow~="fb"]):not([data-fbm-page="reel"][data-fbr-allow~="reels"]) div[aria-label="Reels"],
   /* Sponsored, suggested, Reels, and "People you may know" units, plus the
      right rail's Sponsored section */
   html:not([data-fbr-allow~="fb"]) [data-fbm-hide],

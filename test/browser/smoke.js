@@ -37,6 +37,12 @@ const MARKET = `<!DOCTYPE html><html><body>
   <button id="spa-home" onclick="history.pushState({}, '', '/')">logo</button>
   <button id="spa-reel" onclick="history.pushState({}, '', '/reel/42')">reel</button>
   </div></body></html>`;
+// A reel page carrying everything that's hidden elsewhere: the Reels label,
+// a feed, and a creator's Follow button.
+const REEL = `<!DOCTYPE html><html><body><div role="main">
+  <div aria-label="Reels"><div role="feed"><div>
+  <h2><a href="/some.creator">Some Creator</a></h2><div role="button">Follow</div>
+  <p>REEL VIDEO</p></div></div></div></div></body></html>`;
 
 const EDGE_PATHS = {
   win32: [
@@ -114,6 +120,7 @@ const units = (page) =>
     else if (url.pathname === "/") body = RANKED;
     else if (url.pathname === "/maya.chen.7") body = fixture("profile.html");
     else if (url.pathname.startsWith("/marketplace")) body = MARKET;
+    else if (url.pathname.startsWith("/reel")) body = REEL;
     res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     res.end(body);
   });
@@ -163,8 +170,10 @@ const units = (page) =>
     check("hard load of / lands on the Friends feed", page.url() === FRIENDS, page.url());
     await page.goto(FB + "/watch/?v=123");
     check("hard load of /watch lands on the Friends feed", page.url() === FRIENDS, page.url());
-    check("neither / nor /watch reached the server",
-      !served.some((u) => u === "/" || u.startsWith("/watch")), served.join());
+    await page.goto(FB + "/reel/456");
+    check("hard load of /reel lands on the Friends feed", page.url() === FRIENDS, page.url());
+    check("none of /, /watch, /reel reached the server",
+      !served.some((u) => u === "/" || u.startsWith("/watch") || u.startsWith("/reel")), served.join());
     await settle();
 
     // Friends feed: friend posts render, everything else is hidden.
@@ -221,6 +230,28 @@ const units = (page) =>
     await page.click("#spa-reel");
     check("SPA navigation to /reel goes to the Friends feed", await landsOn(page, FRIENDS), page.url());
 
+    // Allow Reels: reel links open untouched, Watch still goes home, and
+    // switching it back off sends an open reel home.
+    await set({ allowReels: true });
+    await page.goto(FB + "/reel/456");
+    await settle();
+    check("allow reels: a hard-loaded reel stays open", page.url() === FB + "/reel/456", page.url());
+    check("allow reels: reel page is classified", (await pageType(page)) === "reel");
+    const reel = await displays(page, '[aria-label="Reels"], [role="feed"], [role="feed"] > *');
+    check("allow reels: the reel, its feed, and its label are visible", reel.every((d) => d !== "none"), reel.join());
+    check("allow reels: the reel isn't tagged", (await page.$$("[data-fbm-hide]")).length === 0);
+    await page.goto(MARKETPLACE);
+    await settle();
+    await page.click("#spa-reel");
+    await settle();
+    check("allow reels: SPA navigation to /reel stays", page.url() === FB + "/reel/42", page.url());
+    await page.goto(FB + "/watch/?v=1");
+    check("allow reels: /watch still lands on the Friends feed", page.url() === FRIENDS, page.url());
+    await page.goto(FB + "/reel/456");
+    await settle();
+    await set({ allowReels: false });
+    check("reels off again: an open reel goes to the Friends feed", await landsOn(page, FRIENDS), page.url());
+
     // Home = Marketplace swaps both the network rules and the in-page redirect.
     await set({ homePage: "marketplace" });
     await page.goto(FB + "/");
@@ -242,7 +273,7 @@ const units = (page) =>
     check("back on: an open / page redirects to Friends", await landsOn(page, FRIENDS), page.url());
 
     // Popup reflects storage.
-    await set({ strictFriends: true, homePage: "marketplace" });
+    await set({ strictFriends: true, allowReels: true, homePage: "marketplace" });
     const popup = await ctx.newPage();
     await popup.setViewportSize({ width: 300, height: 420 });
     await popup.goto(`chrome-extension://${extId}/popup.html`);
@@ -250,9 +281,10 @@ const units = (page) =>
     const state = await popup.evaluate(() => ({
       master: document.getElementById("hideFbFeed").checked,
       strict: document.getElementById("strictFriends").checked,
+      reels: document.getElementById("allowReels").checked,
       home: document.querySelector('input[name="homePage"]:checked')?.value
     }));
-    check("popup reflects storage", state.master && state.strict && state.home === "marketplace", JSON.stringify(state));
+    check("popup reflects storage", state.master && state.strict && state.reels && state.home === "marketplace", JSON.stringify(state));
     await shot(popup, "3-popup.png", { fullPage: true });
 
     check("no page errors", errors.length === 0, errors.join(" | "));

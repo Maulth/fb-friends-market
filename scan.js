@@ -77,12 +77,9 @@ window.__fbmScan = (() => {
 
   // ---- Page classification -------------------------------------------------
 
-  const JUNK_PATHS = [
-    /^\/watch([/?]|$)/,
-    /^\/reel([/?]|$)/,
-    /^\/reels([/?]|$)/,
-    /^\/stories([/?]|$)/
-  ];
+  // Watch and Stories always go home. Reels do too, unless Allow Reels is on.
+  const JUNK_PATHS = [/^\/watch([/?]|$)/, /^\/stories([/?]|$)/];
+  const REEL_PATH = /^\/reels?([/?]|$)/;
   // Ranked feeds we hide in place rather than redirect away from.
   const RANKED_PATHS = [/^\/groups\/feed([/?]|$)/, /^\/gaming([/?]|$)/];
 
@@ -94,14 +91,16 @@ window.__fbmScan = (() => {
     return path === "/" || path === "/home.php";
   }
 
-  // friends | feed | marketplace | other. "feed" means a ranked feed that
-  // must never render; facebook.css keys off this.
+  // friends | feed | marketplace | reel | other. "feed" means a ranked feed
+  // that must never render; "reel" renders only when Reels are allowed.
+  // facebook.css keys off this.
   function classifyPage(href) {
     const url = parse(href);
     const path = url.pathname;
     if (isHomePath(path)) {
       return url.searchParams.get("filter") === "friends" ? "friends" : "feed";
     }
+    if (REEL_PATH.test(path)) return "reel";
     if (JUNK_PATHS.some((re) => re.test(path))) return "feed";
     if (RANKED_PATHS.some((re) => re.test(path))) return "feed";
     if (/^\/marketplace([/?]|$)/.test(path)) return "marketplace";
@@ -109,10 +108,12 @@ window.__fbmScan = (() => {
   }
 
   // Mirrors the declarativeNetRequest rules, for client-side navigations.
-  function isRedirected(href) {
+  // allowReels mirrors rules_reels.json being live.
+  function isRedirected(href, { allowReels = false } = {}) {
     const url = parse(href);
     const path = url.pathname;
     if (isHomePath(path)) return url.searchParams.get("filter") !== "friends";
+    if (REEL_PATH.test(path)) return !allowReels;
     return JUNK_PATHS.some((re) => re.test(path));
   }
 

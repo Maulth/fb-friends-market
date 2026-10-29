@@ -9,7 +9,7 @@ A free add-on for Microsoft Edge and Google Chrome. It shows you what your frien
 **What it does:**
 
 - Opens Facebook on your **Friends feed**: only your friends' posts, newest first.
-- Hides **ads, suggested posts, Reels, Stories, and "People you may know."**
+- Hides **ads, suggested posts, Reels, Stories, and "People you may know."** (If people send you reels, you can turn Reels back on.)
 - Removes the **Video, Gaming, and Memories** shortcuts.
 - Adds a small **Friends | Marketplace** button in the bottom-left corner, so you can switch between the two.
 - Leaves **Messenger, notifications, friends' profiles, groups, and Marketplace** working normally.
@@ -78,6 +78,7 @@ Click the add-on's icon (two people on a green square) to open its settings. Cha
 | **Friends & Market mode** | The main on/off switch. Turn it off to see normal Facebook again. |
 | **Home page** | Choose whether Facebook opens on your **Friends** feed or on **Marketplace**. |
 | **Strict friends** | Also hides posts where a friend shares someone else's post or a news link, leaving only things your friends wrote or photographed themselves. |
+| **Allow Reels** | Off at first. Turn it on if people send you reels, for example in Messenger, and you want to watch them. While it's off, a reel link takes you to your Friends feed instead. Reels from strangers stay out of your feed either way, but once a reel is open, Facebook may offer you more reels after it. |
 | **Hide comments** | Hides the comment sections under posts. This works even with the main switch off. |
 | **Debug outlines** | Instead of hiding things, it draws a red box around them and says why. This is useful when you're reporting a problem. |
 

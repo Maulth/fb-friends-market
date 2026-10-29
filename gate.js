@@ -12,6 +12,11 @@
  * written as `html[data-fbr-deny~="token"] ...`, so nothing is hidden until
  * the user enables the blocker and the token lands in <html data-fbr-deny>.
  *
+ * Opt-in allowances (optIn + allowance) are OFF by default too, but turning
+ * one on lifts part of a blocker, so its token goes in <html data-fbr-allow>
+ * next to the tokens of switched-off blockers. Their CSS is written like a
+ * default-ON blocker's: `html:not([data-fbr-allow~="token"]) ...`.
+ *
  * Toggling works live in both directions, no page reload needed. The only
  * thing this ever touches on the page is a data attribute on <html>, which
  * page frameworks ignore.
@@ -21,7 +26,7 @@ window.__fbrGate = function (storageKey, token, onChange, opts) {
 
   opts = opts || {};
   const optIn = !!opts.optIn;
-  const attr = optIn ? "data-fbr-deny" : "data-fbr-allow";
+  const attr = optIn && !opts.allowance ? "data-fbr-deny" : "data-fbr-allow";
   const root = document.documentElement;
 
   function apply(enabled) {

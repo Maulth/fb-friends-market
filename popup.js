@@ -2,6 +2,7 @@ const DEFAULTS = {
   hideFbFeed: true,
   homePage: "friends",
   strictFriends: false,
+  allowReels: false,
   hideFbComments: false,
   debugOutline: false
 };

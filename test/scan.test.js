@@ -15,7 +15,10 @@ test("classifyPage tells the Friends feed from the ranked feed", () => {
     "/?filter=friendsfoo": "feed",
     "/home.php": "feed",
     "/watch/?v=123": "feed",
-    "/reel/456": "feed",
+    "/reel/456": "reel",
+    "/reel/?s=tab": "reel",
+    "/reels/": "reel",
+    "/reelestate": "other",
     "/stories/789": "feed",
     "/groups/feed/": "feed",
     "/gaming/play/": "feed",
@@ -37,6 +40,16 @@ test("isRedirected covers home and Watch/Reels/Stories, not the Friends feed", (
   const allowed = ["/?filter=friends&sk=h_chr", "/marketplace/", "/maya.chen.7", "/groups/feed/", "/watchmaker", "/messages/"];
   for (const url of redirected) assert.equal(scan.isRedirected(FB + url), true, url);
   for (const url of allowed) assert.equal(scan.isRedirected(FB + url), false, url);
+});
+
+test("allowReels lets reels through, but not Watch, Stories, or the ranked feed", () => {
+  const opts = { allowReels: true };
+  for (const url of ["/reel/2", "/reel/2/?s=fb_shorts", "/reels/"]) {
+    assert.equal(scan.isRedirected(FB + url, opts), false, url);
+  }
+  for (const url of ["/", "/watch/?v=1", "/stories/3"]) {
+    assert.equal(scan.isRedirected(FB + url, opts), true, url);
+  }
 });
 
 test("friends feed fixture: every unit gets exactly its expected tag", () => {

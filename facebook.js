@@ -7,8 +7,8 @@
  *  - <html data-fbm-page>, which facebook.css reads to decide where a feed
  *    may render (the Friends feed, profiles, groups) and where it may not
  *    (the ranked feed).
- *  - A redirect from the ranked feed, Watch, Reels, and Stories to the
- *    chosen home page (the Friends feed or Marketplace).
+ *  - A redirect from the ranked feed, Watch, Reels (unless allowed), and
+ *    Stories to the chosen home page (the Friends feed or Marketplace).
  *  - The active tab of the Friends | Marketplace switcher.
  *
  * It also runs the scanners in scan.js, which tag suggested, sponsored, and
@@ -24,9 +24,10 @@
   const scan = window.__fbmScan;
   const root = document.documentElement;
 
-  // Both stay null until storage answers, so nothing redirects on a guess.
+  // These stay null until storage answers, so nothing redirects on a guess.
   let hideEnabled = null; // the "Friends & Market mode" toggle
   let homeUrl = null;
+  let reelsAllowed = null;
   let commentsEnabled = false;
   let redirecting = false;
   let switcher = null; // { host, tabs: { friends: <a>, marketplace: <a> } }
@@ -38,8 +39,8 @@
   function enforce() {
     markPage(location.href);
     updateSwitcher();
-    if (!hideEnabled || !homeUrl || redirecting) return;
-    if (scan.isRedirected(location.href)) {
+    if (!hideEnabled || !homeUrl || reelsAllowed === null || redirecting) return;
+    if (scan.isRedirected(location.href, { allowReels: reelsAllowed })) {
       redirecting = true;
       location.replace(homeUrl);
     }
@@ -67,6 +68,18 @@
       if (enabled) scheduleScan();
     },
     { optIn: true }
+  );
+
+  // Allow Reels (OFF by default) lets reel pages open, for reels people send
+  // you. It lifts part of the main blocker, so it's an allowance.
+  window.__fbrGate(
+    "allowReels",
+    "reels",
+    (enabled) => {
+      reelsAllowed = enabled;
+      enforce();
+    },
+    { optIn: true, allowance: true }
   );
 
   // The home page is a choice, not an on/off, so it skips the gate.
@@ -176,8 +189,10 @@
 
   // ---- Scanners ------------------------------------------------------------
 
+  // Reel pages aren't scanned: they either redirect home, or the user allowed
+  // them, and the player is all reels from people you don't follow.
   function runScanners() {
-    if (hideEnabled) {
+    if (hideEnabled && root.getAttribute("data-fbm-page") !== "reel") {
       scan.scanFeed(document);
       scan.scanRails(document);
     }
